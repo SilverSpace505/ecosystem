@@ -1,0 +1,16 @@
+{
+  "name": "Ecosystem",
+  "short_name": "Ecosystem",
+  "description": "Cool Simulation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+	{
+	  "src": "assets/icon.png",
+	  "sizes": "256x256",
+	  "type": "image/png"
+	}
+  ]
+}

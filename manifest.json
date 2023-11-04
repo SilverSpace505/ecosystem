@@ -2,7 +2,7 @@
   "name": "Ecosystem",
   "short_name": "Ecosystem",
   "description": "Cool Simulation",
-  "start_url": "/",
+  "start_url": "/ecosystem",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",

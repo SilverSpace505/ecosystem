@@ -12,15 +12,18 @@ var food = []
 
 var spawn = {x: 0, y: 0}
 
-var foodAmount = 5
+var foodAmount = 0
 
 var camera = {x: 0, y: 0, zoom: 1}
+
+var foodSpawnSize = 2000
+var creatureSpawnSize = 0
 
 var netManager = new Worker("netManager.js")
 
 function createCreature(i) {
 	if (creatures.length >= maxCreatures) { return }
-	creatures.push(new Creature(Math.random()*500-250, Math.random()*500-250, 5))
+	creatures.push(new Creature(Math.random()*creatureSpawnSize*2-creatureSpawnSize, Math.random()*creatureSpawnSize*2-creatureSpawnSize, 5))
 	creatures[i].mutate(10, 75, 0, 0)
 	creatures[i].setupNet()
 	creatures[i].net.mutate(100, 50, 10, 50, 10, 50, 100, 25, 100, 25)
@@ -176,8 +179,8 @@ function tick(timestamp) {
 		creatureI = 0
 		for (let creature of creatures) {
 			// creature.mutate(3, 1, 3, 0.1)
-			creatures[netTickI].netTick()
 			creature.tick()
+			creature.netTick()
 			let bounds = creature.getBounds()
 			bounds.lx *= creature.size; bounds.ly *= creature.size; bounds.mx *= creature.size; bounds.my *= creature.size
 			// if (creature.x+canvas.width/2 < -bounds.lx+creature.size/2) {
@@ -222,7 +225,6 @@ setInterval(() => {
 var startI = 0
 var overflows = 0
 var tickRate = 0
-var foodSpawnSize = 2000
 var maxCompute = 1000
 var currentTime = 0
 var targetFPS = 0

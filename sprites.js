@@ -60,10 +60,13 @@ class Creature {
 	output = []
 	herbivore = false
 	carnivore = false
-	god = 1
+	god = 20
 	changed = true
 	setup = false
 	moved = 0
+	close = []
+	closeFood = []
+	closeCreatures = []
 	constructor(x, y, size) {
 		this.x = x
 		this.y = y
@@ -173,72 +176,46 @@ class Creature {
 
 				
 				let ray = {x: x*this.size+this.x, y: y*this.size+this.y, width: this.size, height: this.size}
-				let found = false
 
-				let close = []
-				let d = 0
-				for (let i in food) {
-					d = Math.sqrt((food[i].x-ray.x)**2+(food[i].y-ray.y)**2)
-					if (d < 100) {
-						close.push({x: food[i].x, y: food[i].y, width: 5, height: 5, type: 0, d: d})
-					}
-				}
-				for (let i in creatures) {
-					if (this.i == creatures[i].i) { continue }
-					if (creatures[i].god > 0) { continue }
-					d = Math.sqrt((creatures[i].x-ray.x)**2+(creatures[i].y-ray.y)**2)
-					if (d < 100) {
-						close.push(creatures[i].hitbox)
-						close[close.length-1].type = 1
-						close[close.length-1].d = d
-					}
-				}
+				// let close = []
+				// let d = 0
+				// for (let i in food) {
+				// 	d = Math.sqrt((food[i].x-ray.x)**2+(food[i].y-ray.y)**2)
+				// 	if (d < 100) {
+				// 		close.push({x: food[i].x, y: food[i].y, width: 5, height: 5, type: 0, d: d})
+				// 	}
+				// }
+				// for (let i in creatures) {
+				// 	if (this.i == creatures[i].i) { continue }
+				// 	if (creatures[i].god > 0) { continue }
+				// 	d = Math.sqrt((creatures[i].x-ray.x)**2+(creatures[i].y-ray.y)**2)
+				// 	if (d < 100) {
+				// 		close.push(creatures[i].hitbox)
+				// 		close[close.length-1].type = 1
+				// 		close[close.length-1].d = d
+				// 	}
+				// }
 
 				// close.sort((a, b) => (b.d - a.d))
 
 				tile[1][0] = 100
 
 				let doBreak = false
-				for (let i in close) {
-					if (rayIntersects(ray.x, ray.y, dir.x, dir.y, close[i])) {
-						dots.push({x: close[i].x, y: close[i].y})
-						tile[1][0] = close[i].d
-						tile[1][1] = close[i].type
+				let hb = {}
+				for (let i in this.close) {
+					if (this.close[i].type == 0) {
+						hb = {x: this.close[i].x, y: this.close[i].y, width: 5, height: 5}
+					} else {
+						hb = this.close[i].hitbox
+					}
+					if (rayIntersects(ray.x, ray.y, dir.x, dir.y, hb)) {
+						dots.push({x: hb.x, y: hb.y})
+						tile[1][0] = this.close[i].d
+						tile[1][1] = this.close[i].type
 						doBreak = true
 					}
 					if (doBreak) { break }
 				}
-
-				// while (!found && Math.sqrt((ray.x-this.x-x*this.size)**2 + (ray.y-this.y-y*this.size)**2) < 100) {
-				// 	ray.x += dir.x*2
-				// 	ray.y += dir.y*2
-
-				// 	for (let i in close) {
-				// 		if (found) { continue }
-				// 		if (isColliding(ray, close[i])) {
-				// 			found = true
-				// 			tile[1][1] = close[i].type
-				// 		}
-				// 	}
-					
-				// 	// for (let i in food) {
-				// 	// 	if (found) { continue }
-				// 	// 	if (isColliding(ray, {x: food[i].x, y: food[i].y, width: 5, height: 5})) {
-				// 	// 		found = true
-				// 	// 		tile[1][1] = 0
-				// 	// 	}
-				// 	// }
-				// 	// for (let i in creatures) {
-				// 	// 	if (found) { continue }
-				// 	// 	if (this.i == creatures[i].i) { continue }
-				// 	// 	if (creatures[i].god > 0) { continue }
-				// 	// 	if (isColliding(ray, creatures[i].hitbox)) {
-				// 	// 		found = true
-				// 	// 		tile[1][1] = 1
-				// 	// 	}
-				// 	// }
-				// }
-				// tile[1][0] = Math.sqrt((ray.x-this.x-x*this.size)**2 + (ray.y-this.y-y*this.size)**2)
 			}
 
 			input.push(...tile[1])
@@ -308,6 +285,37 @@ class Creature {
 	}
 	tick() {
 
+		this.close = []
+		this.closeFood = []
+		this.closeCreatures = []
+
+		let d = 0
+		for (let i in food) {
+			d = Math.sqrt((food[i].x-this.x)**2+(food[i].y-this.y)**2)
+			if (d < 100) {
+				food[i].d = d
+				food[i].type = 0
+				this.close.push(food[i])
+				this.closeFood.push(food[i])
+			}
+		}
+
+		for (let i in creatures) {
+			if (this.i == creatures[i].i) { continue }
+			if (creatures[i].god > 0) { continue }
+			d = Math.sqrt((creatures[i].x-this.x)**2+(creatures[i].y-this.y)**2)
+			if (d < 100) {
+				creatures[i].d = d
+				creatures[i].type = 1
+				this.close.push(creatures[i])
+				this.closeCreatures.push(creatures[i])
+			}
+		}
+
+		this.close.sort((a, b) => (b.d - a.d))
+		this.closeFood.sort((a, b) => (b.d - a.d))
+		this.closeCreatures.sort((a, b) => (b.d - a.d))
+
 		if (!this.setup) {
 			this.setup = true
 			this.netTick()
@@ -371,7 +379,7 @@ class Creature {
 		// this.rot += 0.01
 	}
 	kill() {
-		for (let creature of creatures) {
+		for (let creature of this.closeCreatures) {
 			if (creature.i == this.i) { continue }
 			if (isColliding(this.hitbox, creature.hitbox)) {
 				if (creature.god <= 0) {
@@ -382,8 +390,9 @@ class Creature {
 					updateIndexes()
 					this.duplicate()
 					this.food += Object.keys(this.tiles).length
+					return
 				} else {
-					creature.god = 1
+					creature.god = 20
 				}
 			}
 		}

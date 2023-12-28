@@ -17,7 +17,7 @@ var foodAmount = 0
 var camera = {x: 0, y: 0, zoom: 1}
 
 var foodSpawnSize = 2000
-var creatureSpawnSize = 0
+var creatureSpawnSize = 500
 
 var netManager = new Worker("netManager.js")
 
@@ -84,6 +84,8 @@ function tick(timestamp) {
 	if (delta > 0.1) { delta = 0.1 }
 
 	time += delta
+
+	input.setGlobals()
 
 	canvas.width = window.innerWidth
 	canvas.height = window.innerHeight
@@ -210,7 +212,8 @@ function tick(timestamp) {
 			food.push({t: 600, x: Math.random()*foodSpawnSize-foodSpawnSize/2, y: Math.random()*foodSpawnSize-foodSpawnSize/2})
 		}
 	}
-	jKeys = {}
+	
+	input.updateInput()
 }
 
 requestAnimationFrame(tick)
@@ -220,6 +223,7 @@ setInterval(() => {
 	fps = 0
 	overflows = 0
 	tickRate = 0
+	tickTime = 0
 }, 1000)
 
 var startI = 0

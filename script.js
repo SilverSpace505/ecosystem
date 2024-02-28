@@ -12,12 +12,14 @@ var food = []
 
 var spawn = {x: 0, y: 0}
 
-var foodAmount = 0
+var foodAmount = 3
 
 var camera = {x: 0, y: 0, zoom: 1}
 
 var foodSpawnSize = 2000
 var creatureSpawnSize = 500
+
+var timeWarp = false
 
 var netManager = new Worker("netManager.js")
 
@@ -156,9 +158,13 @@ function tick(timestamp) {
 		ctx.fillRect((dot.x-dotSize/2 - camera.x)*camera.zoo+canvas.width/2, (dot.y-dotSize/2 - camera.y)*camera.zoom+canvas.height/2, 5*camera.zoom, 5*camera.zoom)
 	}
 
+	if (jKeys["KeyT"]) {
+		timeWarp = !timeWarp
+	}
+
 	let startTime = new Date().getTime()
 	tickTime += delta
-	while (tickTime > tickInt && new Date().getTime() - startTime < 1000/animFPS) {
+	while ((tickTime > tickInt || timeWarp) && new Date().getTime() - startTime < 1000/animFPS) {
 		tickTime -= tickInt
 		for (let i in food) {
 			food[i].t -= 1
@@ -211,6 +217,9 @@ function tick(timestamp) {
 		for (let i2 = 0; i2 < foodAmount; i2++) {
 			food.push({t: 600, x: Math.random()*foodSpawnSize-foodSpawnSize/2, y: Math.random()*foodSpawnSize-foodSpawnSize/2})
 		}
+	}
+	if (timeWarp) {
+		tickTime = 0
 	}
 	
 	input.updateInput()

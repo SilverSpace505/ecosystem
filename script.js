@@ -51,6 +51,9 @@ var time = 0
 
 var fps = 0
 
+var fps2 = 0
+var animFPS2 = 0
+
 var autoSpawn = true
 
 var creatureI = 0
@@ -79,9 +82,7 @@ function tick(timestamp) {
 
 	delta = (timestamp - lastTime) / 1000
 	lastTime = timestamp
-	if (1/delta > animFPS) {
-		animFPS = Math.round(1/delta)
-	}
+	animFPS += 1
 	if (!delta) { delta = 0 }
 	if (delta > 0.1) { delta = 0.1 }
 
@@ -89,8 +90,8 @@ function tick(timestamp) {
 
 	input.setGlobals()
 
-	canvas.width = window.innerWidth
-	canvas.height = window.innerHeight
+	ui.resizeCanvas()
+	ui.getSu()
 
 	ctx.fillStyle = "black"
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -164,7 +165,7 @@ function tick(timestamp) {
 
 	let startTime = new Date().getTime()
 	tickTime += delta
-	while ((tickTime > tickInt || timeWarp) && new Date().getTime() - startTime < 1000/animFPS) {
+	while ((tickTime > tickInt || timeWarp) && new Date().getTime() - startTime < Math.min(1000/60, delta*1000)) {
 		tickTime -= tickInt
 		for (let i in food) {
 			food[i].t -= 1
@@ -221,6 +222,13 @@ function tick(timestamp) {
 	if (timeWarp) {
 		tickTime = 0
 	}
+
+	ui.text(10*su, 35*su, 50*su, "FPS: "+animFPS2)
+	ui.text(10*su, 85*su, 50*su, "TPS: "+fps2)
+
+	ui.text(canvas.width-10*su, 35*su, 50*su, "Creatures: "+creatures.length, {align: "right"})
+
+	ui.text(10*su, canvas.height-35*su, 50*su, "(T) Timewarp")
 	
 	input.updateInput()
 }
@@ -228,8 +236,11 @@ function tick(timestamp) {
 requestAnimationFrame(tick)
 
 setInterval(() => {
+	fps2 = fps
+	animFPS2 = animFPS
 	console.log("FPS: " + fps + " Target FPS: " + targetFPS + " Creatures: " + creatures.length + " Anim FPS: " + animFPS)
 	fps = 0
+	animFPS = 0
 	overflows = 0
 	tickRate = 0
 	tickTime = 0
